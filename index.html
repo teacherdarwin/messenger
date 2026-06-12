@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Messenger Clone - Fixed Top Header</title>
+    <title>Messenger Clone - Interconnected</title>
     <!-- FontAwesome for Messenger-like icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -62,22 +62,11 @@
             position: absolute;
             top: 0;
             left: 0;
-            overflow-y: auto; /* Allow screen body scrolling beneath sticky tracks */
-            -webkit-overflow-scrolling: touch;
+            overflow: hidden;
         }
 
         .screen.active {
             display: flex;
-        }
-
-        /* --- STICKY TOP HEADER TRACK --- */
-        .sticky-top-track {
-            position: sticky;
-            top: 0;
-            background: var(--bg-light);
-            z-index: 100; /* Keeps header layered on top of scrolling text bubbles */
-            flex-shrink: 0;
-            width: 100%;
         }
 
         /* --- SPLASH SCREEN --- */
@@ -180,6 +169,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #f0f0f0;
+            flex-shrink: 0;
         }
 
         .header-left {
@@ -219,7 +209,7 @@
 
         .search-bar-container {
             padding: 10px 15px;
-            border-bottom: 1px solid #f5f5f5;
+            flex-shrink: 0;
         }
 
         .search-bar {
@@ -241,7 +231,8 @@
 
         .chats-container {
             flex: 1;
-            width: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .chat-row {
@@ -335,6 +326,7 @@
             padding: 10px 15px;
             border-bottom: 1px solid #f0f0f0;
             gap: 10px;
+            flex-shrink: 0;
         }
 
         .back-btn {
@@ -362,12 +354,13 @@
 
         .messages-area {
             flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding: 15px;
             display: flex;
             flex-direction: column;
             gap: 12px;
             background-color: #fff;
-            min-height: calc(100% - 130px); /* Ensures structural room layout allocation */
         }
 
         .msg-wrapper {
@@ -423,10 +416,7 @@
             color: white;
         }
 
-        /* --- STICKY BOTTOM INPUT DOCK --- */
         .chat-input-area {
-            position: sticky;
-            bottom: 0;
             padding: 10px 15px;
             display: flex;
             align-items: center;
@@ -434,7 +424,6 @@
             border-top: 1px solid #f0f0f0;
             background: #fff;
             flex-shrink: 0;
-            z-index: 100;
         }
 
         .chat-input-icons {
@@ -498,53 +487,43 @@
 
         <!-- 2. CHATS LIST SCREEN -->
         <div id="list-screen" class="screen">
-            <!-- LOCKED AT THE TOP CONTAINER -->
-            <div class="sticky-top-track">
-                <div class="app-header">
-                    <div class="header-left">
-                        <img id="current-user-img" src="" alt="Me" class="current-user-avatar">
-                        <div class="header-title" id="header-display-name">Chats</div>
-                    </div>
-                    <div class="header-actions">
-                        <div class="header-icon" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></div>
-                    </div>
+            <div class="app-header">
+                <div class="header-left">
+                    <img id="current-user-img" src="" alt="Me" class="current-user-avatar">
+                    <div class="header-title" id="header-display-name">Chats</div>
                 </div>
-                <div class="search-bar-container">
-                    <div class="search-bar">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Search">
-                    </div>
+                <div class="header-actions">
+                    <div class="header-icon" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></div>
                 </div>
             </div>
-
-            <!-- SCROLLABLE LIST CONTENT -->
+            <div class="search-bar-container">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search">
+                </div>
+            </div>
             <div class="chats-container" id="chats-list">
                 <!-- Programmatically populated lists live here -->
             </div>
         </div>
 
-        <!-- 3. CHAT WINDOW -->
+        <!-- 3. CHAT WINDOW WINDOW -->
         <div id="chat-screen" class="screen">
-            <!-- LOCKED AT THE TOP CONTAINER -->
-            <div class="sticky-top-track">
-                <div class="chat-header">
-                    <div class="back-btn" onclick="showListScreen()"><i class="fas fa-arrow-left"></i></div>
-                    <div id="header-avatar-slot"></div>
-                    <div class="chat-header-info">
-                        <div id="active-name" class="chat-name" style="font-size:15px; margin:0;">Name</div>
-                        <div class="chat-header-status" id="active-status">Active now</div>
-                    </div>
-                    <div class="chat-header-icons">
-                        <i class="fas fa-phone-alt"></i>
-                        <i class="fas fa-video"></i>
-                    </div>
+            <div class="chat-header">
+                <div class="back-btn" onclick="showListScreen()"><i class="fas fa-arrow-left"></i></div>
+                <div id="header-avatar-slot"></div>
+                <div class="chat-header-info">
+                    <div id="active-name" class="chat-name" style="font-size:15px; margin:0;">Name</div>
+                    <div class="chat-header-status" id="active-status">Active now</div>
+                </div>
+                <div class="chat-header-icons">
+                    <i class="fas fa-phone-alt"></i>
+                    <i class="fas fa-video"></i>
                 </div>
             </div>
 
-            <!-- SCROLLABLE CHAT FEED -->
             <div class="messages-area" id="messages-stream"></div>
 
-            <!-- PINNED BOTTOM INPUT DOCK -->
             <div class="chat-input-area">
                 <div class="chat-input-icons" id="input-addons">
                     <i class="fas fa-plus-circle"></i>
@@ -561,11 +540,13 @@
     </div>
 
     <script>
+        // --- MULTIPLE CREDENTIAL DATABASE ---
         const allowedUsers = {
-            "user1": { id: "09489249671", name: "Darwin Agullana", avatar: "DARWIN.png", password: "Colossians3:23" },
+            "user1": { id: "user1", name: "Michael", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150", password: "pass123" },
             "user2": { id: "user2", name: "Emma", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150", password: "secure456" }
         };
 
+        // --- SYSTEM CORE CENTRAL DATA STORE ---
         const defaultConversations = {
             "group_project": {
                 id: "group_project",
@@ -580,7 +561,7 @@
             "p2p_user1_user2": {
                 id: "p2p_user1_user2",
                 isGroup: false,
-                name: "Emma",
+                name: "Emma", // dynamic fallback based on active context
                 messages: [
                     { senderId: "user1", senderName: "Michael", text: "Hey Emma, did you see my commit on GitHub?" },
                     { senderId: "user2", senderName: "Emma", text: "Just saw it! Looks great." }
@@ -597,19 +578,17 @@
             }
         };
 
-        let activeConversations = JSON.parse(localStorage.getItem('msg_interconnected_v2')) || defaultConversations;
+        let activeConversations = JSON.parse(localStorage.getItem('msg_interconnected_v1')) || defaultConversations;
         let loggedInUser = null;
         let activeChatId = null;
 
         function saveState() {
-            localStorage.setItem('msg_interconnected_v2', JSON.stringify(activeConversations));
+            localStorage.setItem('msg_interconnected_v1', JSON.stringify(activeConversations));
         }
 
         function changeScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            // Reset scroll position to top when shifting screens
-            document.getElementById(screenId).scrollTop = 0;
         }
 
         function initializeFullscreenApp() {
@@ -646,6 +625,7 @@
             renderChatList();
         }
 
+        // --- RENDER RE-ENGINEERED CONVERSATIONS LIST ---
         function renderChatList() {
             const listContainer = document.getElementById('chats-list');
             listContainer.innerHTML = '';
@@ -654,6 +634,7 @@
                 let chatTitle = chat.name;
                 let chatAvatarHTML = '';
                 
+                // P2P formatting fallback adjustments based on identity matrix
                 if (!chat.isGroup) {
                     if (chat.id === "p2p_user1_user2") {
                         const peer = (loggedInUser.id === "user1") ? allowedUsers["user2"] : allowedUsers["user1"];
@@ -663,6 +644,7 @@
                         chatAvatarHTML = `<div class="avatar-container"><img src="${chat.avatar}" class="avatar"><div class="status-dot"></div></div>`;
                     }
                 } else {
+                    // Group chat avatar overlay graphic rules
                     chatAvatarHTML = `
                         <div class="group-avatar-wrapper">
                             <img src="${allowedUsers['user1'].avatar}" class="group-avatar-1">
@@ -688,6 +670,7 @@
             });
         }
 
+        // --- ACTIVE CHAT FLOW MANAGEMENT ---
         function openChatWindow(id) {
             activeChatId = id;
             const chat = activeConversations[id];
@@ -717,10 +700,6 @@
             document.getElementById('active-name').innerText = displayTitle;
             renderMessagesStream();
             changeScreen('chat-screen');
-            
-            // Focus scrolling onto chat box window element bottom edge
-            const screenObj = document.getElementById('chat-screen');
-            screenObj.scrollTop = screenObj.scrollHeight;
         }
 
         function renderMessagesStream() {
@@ -734,7 +713,8 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = `msg-wrapper ${isMe ? 'sent' : 'received'}`;
 
-                let avatarSrc = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
+                // Calculate which profile picture icon image to show next to incoming text bubbles
+                let avatarSrc = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150"; // system baseline default fallback
                 if (allowedUsers[msg.senderId]) {
                     avatarSrc = allowedUsers[msg.senderId].avatar;
                 } else if (msg.senderId === "bot_john") {
@@ -761,9 +741,7 @@
                 stream.appendChild(wrapper);
             });
 
-            // Adjust main window screen level viewport scroll tracking to anchor at bottom bubble
-            const screenObj = document.getElementById('chat-screen');
-            screenObj.scrollTop = screenObj.scrollHeight;
+            stream.scrollTop = stream.scrollHeight;
         }
 
         function toggleSendBtn() {
@@ -787,6 +765,7 @@
 
             const targetChatId = activeChatId;
 
+            // Commit sent message into state registry under active actor signature identity
             activeConversations[targetChatId].messages.push({
                 senderId: loggedInUser.id,
                 senderName: loggedInUser.name,
@@ -798,6 +777,7 @@
             renderMessagesStream();
             saveState();
 
+            // Fire custom bot response rules if messaging automated John Doe channel
             if (targetChatId === "p2p_bot_john") {
                 setTimeout(() => {
                     if (activeChatId !== "p2p_bot_john") return;
