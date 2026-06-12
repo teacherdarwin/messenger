@@ -476,8 +476,19 @@
         }
 
         function handleLogin() {
-            changeScreen('list-screen');
-            renderChatList();
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+
+            // Define your required credentials here
+            const correctUsername = "admin"
+            const correctPassword = "password123";
+
+            if (usernameInput === correctUsername && passwordInput === correctPassword) {
+                changeScreen('list-screen');
+                renderChatList();
+            } else {
+                alert("Incorrect username or password. Please try again!");
+            }
         }
 
         function showListScreen() {
