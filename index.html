@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messenger Clone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KKDAT Messenger</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -21,29 +21,36 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        body {
+        /* Prevents the entire mobile page/body from bounce-scrolling */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             background-color: #333;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
         }
 
-        /* Mobile Container App Simulation */
+        /* Fixed Mobile Container App Simulation */
         .phone-container {
             width: 100%;
+            height: 100%;
             max-width: 420px;
-            height: 100vh;
             background: var(--bg-light);
             display: flex;
             flex-direction: column;
-            position: relative;
+            position: fixed; /* Fixed to the viewport */
+            top: 0;
+            bottom: 0;
             overflow: hidden;
             box-shadow: 0 12px 28px rgba(0,0,0,0.2);
         }
 
+        /* For desktop viewing, makes it look like a physical phone container */
         @media (min-width: 425px) {
             .phone-container {
+                position: relative;
                 height: 840px;
                 border-radius: 30px;
             }
@@ -57,6 +64,7 @@
             position: absolute;
             top: 0;
             left: 0;
+            overflow: hidden; /* Lock individual screen components from overflowing */
         }
 
         .screen.active {
@@ -121,6 +129,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #f0f0f0;
+            flex-shrink: 0; /* Prevents header from resizing or crushing */
         }
 
         .header-title {
@@ -147,6 +156,7 @@
 
         .search-bar-container {
             padding: 10px 15px;
+            flex-shrink: 0; /* Keeps search container locked to original size */
         }
 
         .search-bar {
@@ -169,7 +179,8 @@
 
         .chats-container {
             flex: 1;
-            overflow-y: auto;
+            overflow-y: auto; /* Scroll element inside the fixed boundaries */
+            -webkit-overflow-scrolling: touch;
         }
 
         .chat-row {
@@ -236,6 +247,7 @@
             padding: 10px 15px;
             border-bottom: 1px solid #f0f0f0;
             gap: 10px;
+            flex-shrink: 0; /* Keeps chat header completely fixed */
         }
 
         .back-btn {
@@ -263,7 +275,8 @@
 
         .messages-area {
             flex: 1;
-            overflow-y: auto;
+            overflow-y: auto; /* Scroll messages inside the fixed area */
+            -webkit-overflow-scrolling: touch;
             padding: 15px;
             display: flex;
             flex-direction: column;
@@ -309,6 +322,7 @@
             gap: 15px;
             border-top: 1px solid #f0f0f0;
             background: #fff;
+            flex-shrink: 0; /* Lock chat typing floor to bottom layout */
         }
 
         .chat-input-icons {
@@ -419,7 +433,6 @@
     </div>
 
     <script>
-        // --- FIXED USER DATABASE MOCK DATA ---
         const initialUsers = {
             1: {
                 id: 1,
@@ -450,23 +463,19 @@
             }
         };
 
-        // Load data from localStorage or fall back to defaults
         let userData = JSON.parse(localStorage.getItem('messenger_clone_users')) || initialUsers;
         let currentChatUserId = null;
 
-        // Save State helper
         function saveState() {
             localStorage.setItem('messenger_clone_users', JSON.stringify(userData));
         }
 
-        // --- NAVIGATION & ROUTING ---
         function changeScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
         }
 
         function handleLogin() {
-            // Simply logs in with any credentials provided
             changeScreen('list-screen');
             renderChatList();
         }
@@ -476,7 +485,6 @@
             renderChatList();
         }
 
-        // --- CHAT LIST GENERATOR ---
         function renderChatList() {
             const listContainer = document.getElementById('chats-list');
             listContainer.innerHTML = '';
@@ -502,7 +510,6 @@
             });
         }
 
-        // --- CONVERSATION VIEW ---
         function openChat(userId) {
             currentChatUserId = userId;
             const user = userData[userId];
@@ -526,11 +533,9 @@
                 stream.appendChild(wrapper);
             });
 
-            // Auto Scroll to bottom
             stream.scrollTop = stream.scrollHeight;
         }
 
-        // --- SEND COMPONENT CONTROLS ---
         function toggleSendBtn() {
             const input = document.getElementById('message-input');
             const sendIcon = document.getElementById('send-icon');
@@ -550,7 +555,6 @@
             const text = input.value.trim();
             if (!text) return;
 
-            // Push User Sent Message
             userData[currentChatUserId].messages.push({
                 type: 'sent',
                 text: text
@@ -561,7 +565,6 @@
             renderMessages();
             saveState();
 
-            // Simulate quick auto-reply trigger from fixed user after 1 second
             setTimeout(() => {
                 if (currentChatUserId === null) return;
                 userData[currentChatUserId].messages.push({
@@ -573,7 +576,6 @@
             }, 1000);
         }
 
-        // Allow sending message on pressing 'Enter' key
         document.getElementById('message-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
