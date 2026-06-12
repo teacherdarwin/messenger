@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KKDAT Messenger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Messenger Clone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -21,7 +21,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Prevents the entire mobile page/body from bounce-scrolling */
+        /* Lock the main HTML/Body to prevent screen bouncing */
         html, body {
             width: 100%;
             height: 100%;
@@ -40,14 +40,13 @@
             background: var(--bg-light);
             display: flex;
             flex-direction: column;
-            position: fixed; /* Fixed to the viewport */
+            position: fixed;
             top: 0;
             bottom: 0;
             overflow: hidden;
             box-shadow: 0 12px 28px rgba(0,0,0,0.2);
         }
 
-        /* For desktop viewing, makes it look like a physical phone container */
         @media (min-width: 425px) {
             .phone-container {
                 position: relative;
@@ -64,11 +63,53 @@
             position: absolute;
             top: 0;
             left: 0;
-            overflow: hidden; /* Lock individual screen components from overflowing */
+            overflow: hidden;
         }
 
         .screen.active {
             display: flex;
+        }
+
+        /* --- AUTOMATIC FULLSCREEN SPLASH SCREEN --- */
+        #splash-screen {
+            background: #fff;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 9999;
+        }
+
+        .splash-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .splash-logo {
+            font-size: 90px;
+            background: linear-gradient(45deg, #0066ff, #00c6ff, #0084FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .splash-btn {
+            background: var(--messenger-blue);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 132, 255, 0.3);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         /* --- LOGIN SCREEN --- */
@@ -80,11 +121,11 @@
         }
 
         .login-logo {
-            font-size: 80px;
+            font-size: 70px;
             background: linear-gradient(45deg, #0066ff, #00c6ff, #0084FF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .login-form {
@@ -122,6 +163,14 @@
             margin-top: 10px;
         }
 
+        .login-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+
         /* --- CHATS LIST SCREEN --- */
         .app-header {
             padding: 15px;
@@ -129,7 +178,21 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #f0f0f0;
-            flex-shrink: 0; /* Prevents header from resizing or crushing */
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .current-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--bg-gray);
         }
 
         .header-title {
@@ -139,7 +202,7 @@
 
         .header-actions {
             display: flex;
-            gap: 15px;
+            gap: 12px;
         }
 
         .header-icon {
@@ -150,13 +213,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
         }
 
         .search-bar-container {
             padding: 10px 15px;
-            flex-shrink: 0; /* Keeps search container locked to original size */
+            flex-shrink: 0;
         }
 
         .search-bar {
@@ -179,7 +242,7 @@
 
         .chats-container {
             flex: 1;
-            overflow-y: auto; /* Scroll element inside the fixed boundaries */
+            overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
 
@@ -247,7 +310,7 @@
             padding: 10px 15px;
             border-bottom: 1px solid #f0f0f0;
             gap: 10px;
-            flex-shrink: 0; /* Keeps chat header completely fixed */
+            flex-shrink: 0;
         }
 
         .back-btn {
@@ -275,7 +338,7 @@
 
         .messages-area {
             flex: 1;
-            overflow-y: auto; /* Scroll messages inside the fixed area */
+            overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             padding: 15px;
             display: flex;
@@ -322,7 +385,7 @@
             gap: 15px;
             border-top: 1px solid #f0f0f0;
             background: #fff;
-            flex-shrink: 0; /* Lock chat typing floor to bottom layout */
+            flex-shrink: 0;
         }
 
         .chat-input-icons {
@@ -359,24 +422,41 @@
 </head>
 <body>
 
-    <div class="phone-container">
+    <div class="phone-container" id="app-container">
 
-        <div id="login-screen" class="screen active">
+        <div id="splash-screen" class="screen active" onclick="initializeFullscreenApp()">
+            <div class="splash-content">
+                <div class="splash-logo">
+                    <i class="fab fa-facebook-messenger"></i>
+                </div>
+                <button class="splash-btn">Open Messenger</button>
+            </div>
+        </div>
+
+        <div id="login-screen" class="screen">
             <div class="login-logo">
                 <i class="fab fa-facebook-messenger"></i>
             </div>
             <div class="login-form">
-                <input type="text" id="username" class="login-input" placeholder="Email or Phone Number" value="demo_user">
-                <input type="password" id="password" class="login-input" placeholder="Password" value="password123">
+                <input type="text" id="username" class="login-input" placeholder="Username" value="user1">
+                <input type="password" id="password" class="login-input" placeholder="Password" value="pass123">
                 <button type="button" class="login-btn" onclick="handleLogin()">Log In</button>
+            </div>
+            <div class="login-hint">
+                <strong>Available Accounts:</strong><br>
+                user1 / pass123 (Michael)<br>
+                user2 / secure456 (Emma)
             </div>
         </div>
 
         <div id="list-screen" class="screen">
             <div class="app-header">
-                <div class="header-title">Chats</div>
+                <div class="header-left">
+                    <img id="current-user-img" src="" alt="Me" class="current-user-avatar">
+                    <div class="header-title" id="header-display-name">Chats</div>
+                </div>
                 <div class="header-actions">
-                    <div class="header-icon"><i class="fas fa-camera"></i></div>
+                    <div class="header-icon" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></div>
                     <div class="header-icon"><i class="fas fa-pen"></i></div>
                 </div>
             </div>
@@ -433,15 +513,29 @@
     </div>
 
     <script>
-        const initialUsers = {
+        // --- MULTIPLE CREDENTIAL DATABASE ---
+        const allowedUsers = {
+            "user1": {
+                password: "Colossians3:23",
+                displayName: "Darwin Agullana",
+                avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
+            },
+            "user2": {
+                password: "secure456",
+                displayName: "Emma",
+                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150"
+            }
+        };
+
+        // --- FIXED CHAT RECIPIENTS TARGETS ---
+        const initialChats = {
             1: {
                 id: 1,
                 name: "John Doe",
                 avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
                 messages: [
                     { type: 'received', text: 'Hey there! Are we still on for lunch?' },
-                    { type: 'sent', text: 'Yeah absolutely! Standard spot?' },
-                    { type: 'received', text: 'Perfect. See you at 1 PM!' }
+                    { type: 'sent', text: 'Yeah absolutely!' }
                 ]
             },
             2: {
@@ -449,8 +543,7 @@
                 name: "Sarah Jenkins",
                 avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
                 messages: [
-                    { type: 'received', text: 'Did you check out the new layout designs yet?' },
-                    { type: 'sent', text: 'Not yet, send them over!' }
+                    { type: 'received', text: 'Did you check out the design layout yet?' }
                 ]
             },
             3: {
@@ -458,37 +551,67 @@
                 name: "Alex Rivera",
                 avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150",
                 messages: [
-                    { type: 'received', text: 'Bro, answer your phone lol' }
+                    { type: 'received', text: 'Call me when you get a chance.' }
                 ]
             }
         };
 
-        let userData = JSON.parse(localStorage.getItem('messenger_clone_users')) || initialUsers;
+        let userData = JSON.parse(localStorage.getItem('messenger_clone_users')) || initialChats;
         let currentChatUserId = null;
+        let loggedInUser = null;
 
         function saveState() {
             localStorage.setItem('messenger_clone_users', JSON.stringify(userData));
         }
 
+        // Global layout navigator
         function changeScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
         }
 
+        // --- CAPTURING THE TOUCH GESTURE FOR PRE-LOGIN FULLSCREEN ---
+        function initializeFullscreenApp() {
+            const container = document.documentElement;
+            
+            if (container.requestFullscreen) {
+                container.requestFullscreen();
+            } else if (container.webkitRequestFullscreen) { /* Safari / iOS Devices */
+                container.webkitRequestFullscreen();
+            } else if (container.msRequestFullscreen) {
+                container.msRequestFullscreen();
+            }
+
+            // Immediately change screen to the Log In view while going full-screen
+            changeScreen('login-screen');
+        }
+
+        // --- LOGIN VERIFICATION ---
         function handleLogin() {
-            const usernameInput = document.getElementById('username').value;
-            const passwordInput = document.getElementById('password').value;
+            const userField = document.getElementById('username').value.trim();
+            const passField = document.getElementById('password').value;
 
-            // Define your required credentials here
-            const correctUsername = "admin"
-            const correctPassword = "password123";
+            if (allowedUsers[userField] && allowedUsers[userField].password === passField) {
+                loggedInUser = allowedUsers[userField];
+                
+                document.getElementById('current-user-img').src = loggedInUser.avatar;
+                document.getElementById('header-display-name').innerText = loggedInUser.displayName;
 
-            if (usernameInput === correctUsername && passwordInput === correctPassword) {
                 changeScreen('list-screen');
                 renderChatList();
             } else {
-                alert("Incorrect username or password. Please try again!");
+                alert("Invalid username or password configuration.");
             }
+        }
+
+        function handleLogout() {
+            loggedInUser = null;
+            if (document.exitFullscreen) { document.exitFullscreen(); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+            
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            changeScreen('splash-screen'); // Return back to the opening splash loop
         }
 
         function showListScreen() {
@@ -496,6 +619,7 @@
             renderChatList();
         }
 
+        // --- APP CONTENT GENERATOR ---
         function renderChatList() {
             const listContainer = document.getElementById('chats-list');
             listContainer.innerHTML = '';
@@ -580,7 +704,7 @@
                 if (currentChatUserId === null) return;
                 userData[currentChatUserId].messages.push({
                     type: 'received',
-                    text: `Thanks for messaging! This is an automated echo test response.`
+                    text: `Echo reply to ${loggedInUser.displayName}: "${text}"`
                 });
                 renderMessages();
                 saveState();
