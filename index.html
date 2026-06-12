@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Messenger Clone</title>
+    <title>Messenger Clone - Fixed Top Header</title>
+    <!-- FontAwesome for Messenger-like icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -21,7 +22,6 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Lock the main HTML/Body to prevent screen bouncing */
         html, body {
             width: 100%;
             height: 100%;
@@ -32,7 +32,6 @@
             align-items: center;
         }
 
-        /* Fixed Mobile Container App Simulation */
         .phone-container {
             width: 100%;
             height: 100%;
@@ -63,14 +62,25 @@
             position: absolute;
             top: 0;
             left: 0;
-            overflow: hidden;
+            overflow-y: auto; /* Allow screen body scrolling beneath sticky tracks */
+            -webkit-overflow-scrolling: touch;
         }
 
         .screen.active {
             display: flex;
         }
 
-        /* --- AUTOMATIC FULLSCREEN SPLASH SCREEN --- */
+        /* --- STICKY TOP HEADER TRACK --- */
+        .sticky-top-track {
+            position: sticky;
+            top: 0;
+            background: var(--bg-light);
+            z-index: 100; /* Keeps header layered on top of scrolling text bubbles */
+            flex-shrink: 0;
+            width: 100%;
+        }
+
+        /* --- SPLASH SCREEN --- */
         #splash-screen {
             background: #fff;
             justify-content: center;
@@ -103,7 +113,6 @@
             border-radius: 20px;
             font-size: 16px;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0, 132, 255, 0.3);
         }
 
         @keyframes pulse {
@@ -143,12 +152,6 @@
             font-size: 16px;
             background: var(--bg-gray);
             outline: none;
-            transition: border 0.2s;
-        }
-
-        .login-input:focus {
-            border-color: var(--messenger-blue);
-            background: #fff;
         }
 
         .login-btn {
@@ -160,7 +163,6 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
         }
 
         .login-hint {
@@ -178,7 +180,6 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #f0f0f0;
-            flex-shrink: 0;
         }
 
         .header-left {
@@ -192,7 +193,6 @@
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            background: var(--bg-gray);
         }
 
         .header-title {
@@ -219,7 +219,7 @@
 
         .search-bar-container {
             padding: 10px 15px;
-            flex-shrink: 0;
+            border-bottom: 1px solid #f5f5f5;
         }
 
         .search-bar {
@@ -237,13 +237,11 @@
             background: transparent;
             outline: none;
             width: 100%;
-            font-size: 15px;
         }
 
         .chats-container {
             flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            width: 100%;
         }
 
         .chat-row {
@@ -252,7 +250,6 @@
             align-items: center;
             gap: 15px;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
         .chat-row:hover {
@@ -270,6 +267,34 @@
             object-fit: cover;
         }
 
+        .group-avatar-wrapper {
+            width: 55px;
+            height: 55px;
+            position: relative;
+        }
+
+        .group-avatar-1 {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 2px solid white;
+            z-index: 2;
+        }
+
+        .group-avatar-2 {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            border: 2px solid white;
+            z-index: 1;
+        }
+
         .status-dot {
             width: 14px;
             height: 14px;
@@ -285,6 +310,7 @@
             flex: 1;
             border-bottom: 1px solid #f5f5f5;
             padding-bottom: 8px;
+            overflow: hidden;
         }
 
         .chat-name {
@@ -300,7 +326,6 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 220px;
         }
 
         /* --- ACTIVE CONVERSATION SCREEN --- */
@@ -310,7 +335,6 @@
             padding: 10px 15px;
             border-bottom: 1px solid #f0f0f0;
             gap: 10px;
-            flex-shrink: 0;
         }
 
         .back-btn {
@@ -338,34 +362,55 @@
 
         .messages-area {
             flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
             padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             background-color: #fff;
+            min-height: calc(100% - 130px); /* Ensures structural room layout allocation */
         }
 
         .msg-wrapper {
             display: flex;
+            flex-direction: column;
             width: 100%;
         }
 
         .msg-wrapper.received {
-            justify-content: flex-start;
+            align-items: flex-start;
         }
 
         .msg-wrapper.sent {
-            justify-content: flex-end;
+            align-items: flex-end;
+        }
+
+        .sender-name-tag {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            margin-left: 8px;
+        }
+
+        .message-row-core {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            max-width: 75%;
+        }
+
+        .mini-msg-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
         .message {
-            max-width: 70%;
             padding: 10px 16px;
             border-radius: 18px;
             font-size: 15px;
             line-height: 1.4;
+            word-break: break-word;
         }
 
         .msg-wrapper.received .message {
@@ -378,7 +423,10 @@
             color: white;
         }
 
+        /* --- STICKY BOTTOM INPUT DOCK --- */
         .chat-input-area {
+            position: sticky;
+            bottom: 0;
             padding: 10px 15px;
             display: flex;
             align-items: center;
@@ -386,6 +434,7 @@
             border-top: 1px solid #f0f0f0;
             background: #fff;
             flex-shrink: 0;
+            z-index: 100;
         }
 
         .chat-input-icons {
@@ -424,194 +473,172 @@
 
     <div class="phone-container" id="app-container">
 
+        <!-- 0. SPLASH LAUNCH SCREEN -->
         <div id="splash-screen" class="screen active" onclick="initializeFullscreenApp()">
             <div class="splash-content">
-                <div class="splash-logo">
-                    <i class="fab fa-facebook-messenger"></i>
-                </div>
+                <div class="splash-logo"><i class="fab fa-facebook-messenger"></i></div>
                 <button class="splash-btn">Open Messenger</button>
             </div>
         </div>
 
+        <!-- 1. LOGIN SCREEN -->
         <div id="login-screen" class="screen">
-            <div class="login-logo">
-                <i class="fab fa-facebook-messenger"></i>
-            </div>
+            <div class="login-logo"><i class="fab fa-facebook-messenger"></i></div>
             <div class="login-form">
                 <input type="text" id="username" class="login-input" placeholder="Username" value="user1">
                 <input type="password" id="password" class="login-input" placeholder="Password" value="pass123">
                 <button type="button" class="login-btn" onclick="handleLogin()">Log In</button>
             </div>
             <div class="login-hint">
-                <strong>Available Accounts:</strong><br>
+                <strong>Log into either account to chat with the other:</strong><br>
                 user1 / pass123 (Michael)<br>
                 user2 / secure456 (Emma)
             </div>
         </div>
 
+        <!-- 2. CHATS LIST SCREEN -->
         <div id="list-screen" class="screen">
-            <div class="app-header">
-                <div class="header-left">
-                    <img id="current-user-img" src="" alt="Me" class="current-user-avatar">
-                    <div class="header-title" id="header-display-name">Chats</div>
+            <!-- LOCKED AT THE TOP CONTAINER -->
+            <div class="sticky-top-track">
+                <div class="app-header">
+                    <div class="header-left">
+                        <img id="current-user-img" src="" alt="Me" class="current-user-avatar">
+                        <div class="header-title" id="header-display-name">Chats</div>
+                    </div>
+                    <div class="header-actions">
+                        <div class="header-icon" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></div>
+                    </div>
                 </div>
-                <div class="header-actions">
-                    <div class="header-icon" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></div>
-                    <div class="header-icon"><i class="fas fa-pen"></i></div>
-                </div>
-            </div>
-            
-            <div class="search-bar-container">
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search">
+                <div class="search-bar-container">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search">
+                    </div>
                 </div>
             </div>
 
+            <!-- SCROLLABLE LIST CONTENT -->
             <div class="chats-container" id="chats-list">
-                </div>
+                <!-- Programmatically populated lists live here -->
+            </div>
         </div>
 
+        <!-- 3. CHAT WINDOW -->
         <div id="chat-screen" class="screen">
-            <div class="chat-header">
-                <div class="back-btn" onclick="showListScreen()">
-                    <i class="fas fa-arrow-left"></i>
-                </div>
-                <div class="avatar-container">
-                    <img id="active-avatar" src="" alt="Avatar" class="avatar" style="width:40px; height:40px;">
-                </div>
-                <div class="chat-header-info">
-                    <div id="active-name" class="chat-name" style="font-size:15px; margin:0;">Target Name</div>
-                    <div class="chat-header-status">Active now</div>
-                </div>
-                <div class="chat-header-icons">
-                    <i class="fas fa-phone-alt"></i>
-                    <i class="fas fa-video"></i>
+            <!-- LOCKED AT THE TOP CONTAINER -->
+            <div class="sticky-top-track">
+                <div class="chat-header">
+                    <div class="back-btn" onclick="showListScreen()"><i class="fas fa-arrow-left"></i></div>
+                    <div id="header-avatar-slot"></div>
+                    <div class="chat-header-info">
+                        <div id="active-name" class="chat-name" style="font-size:15px; margin:0;">Name</div>
+                        <div class="chat-header-status" id="active-status">Active now</div>
+                    </div>
+                    <div class="chat-header-icons">
+                        <i class="fas fa-phone-alt"></i>
+                        <i class="fas fa-video"></i>
+                    </div>
                 </div>
             </div>
 
-            <div class="messages-area" id="messages-stream">
-                </div>
+            <!-- SCROLLABLE CHAT FEED -->
+            <div class="messages-area" id="messages-stream"></div>
 
+            <!-- PINNED BOTTOM INPUT DOCK -->
             <div class="chat-input-area">
                 <div class="chat-input-icons" id="input-addons">
                     <i class="fas fa-plus-circle"></i>
                     <i class="fas fa-camera"></i>
-                    <i class="fas fa-image"></i>
-                    <i class="fas fa-microphone"></i>
                 </div>
                 <div class="input-wrapper">
                     <input type="text" id="message-input" placeholder="Aa" oninput="toggleSendBtn()">
-                    <i class="far fa-smile" style="color:var(--messenger-blue); font-size:20px;"></i>
                 </div>
                 <div class="send-btn" id="send-icon" onclick="sendMessage()">
                     <i class="fas fa-paper-plane"></i>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
-        // --- MULTIPLE CREDENTIAL DATABASE ---
         const allowedUsers = {
-            "user1": {
-                password: "Colossians3:23",
-                displayName: "Darwin Agullana",
-                avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
-            },
-            "user2": {
-                password: "secure456",
-                displayName: "Emma",
-                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150"
-            }
+            "user1": { id: "09489249671", name: "Darwin Agullana", avatar: "DARWIN.png", password: "Colossians3:23" },
+            "user2": { id: "user2", name: "Emma", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150", password: "secure456" }
         };
 
-        // --- FIXED CHAT RECIPIENTS TARGETS ---
-        const initialChats = {
-            1: {
-                id: 1,
+        const defaultConversations = {
+            "group_project": {
+                id: "group_project",
+                isGroup: true,
+                name: "Web Dev Group Project 🚀",
+                participants: ["user1", "user2", "bot_john"],
+                messages: [
+                    { senderId: "bot_john", senderName: "John Doe", text: "Hey guys! Welcome to the group chat." },
+                    { senderId: "user1", senderName: "Michael", text: "Awesome, now Emma can join the planning too." }
+                ]
+            },
+            "p2p_user1_user2": {
+                id: "p2p_user1_user2",
+                isGroup: false,
+                name: "Emma",
+                messages: [
+                    { senderId: "user1", senderName: "Michael", text: "Hey Emma, did you see my commit on GitHub?" },
+                    { senderId: "user2", senderName: "Emma", text: "Just saw it! Looks great." }
+                ]
+            },
+            "p2p_bot_john": {
+                id: "p2p_bot_john",
+                isGroup: false,
                 name: "John Doe",
                 avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
                 messages: [
-                    { type: 'received', text: 'Hey there! Are we still on for lunch?' },
-                    { type: 'sent', text: 'Yeah absolutely!' }
-                ]
-            },
-            2: {
-                id: 2,
-                name: "Sarah Jenkins",
-                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
-                messages: [
-                    { type: 'received', text: 'Did you check out the design layout yet?' }
-                ]
-            },
-            3: {
-                id: 3,
-                name: "Alex Rivera",
-                avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150",
-                messages: [
-                    { type: 'received', text: 'Call me when you get a chance.' }
+                    { senderId: "bot_john", senderName: "John Doe", text: "Hey! Let me know if you need any feedback on the design code." }
                 ]
             }
         };
 
-        let userData = JSON.parse(localStorage.getItem('messenger_clone_users')) || initialChats;
-        let currentChatUserId = null;
+        let activeConversations = JSON.parse(localStorage.getItem('msg_interconnected_v2')) || defaultConversations;
         let loggedInUser = null;
+        let activeChatId = null;
 
         function saveState() {
-            localStorage.setItem('messenger_clone_users', JSON.stringify(userData));
+            localStorage.setItem('msg_interconnected_v2', JSON.stringify(activeConversations));
         }
 
-        // Global layout navigator
         function changeScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            // Reset scroll position to top when shifting screens
+            document.getElementById(screenId).scrollTop = 0;
         }
 
-        // --- CAPTURING THE TOUCH GESTURE FOR PRE-LOGIN FULLSCREEN ---
         function initializeFullscreenApp() {
             const container = document.documentElement;
-            
-            if (container.requestFullscreen) {
-                container.requestFullscreen();
-            } else if (container.webkitRequestFullscreen) { /* Safari / iOS Devices */
-                container.webkitRequestFullscreen();
-            } else if (container.msRequestFullscreen) {
-                container.msRequestFullscreen();
-            }
-
-            // Immediately change screen to the Log In view while going full-screen
+            if (container.requestFullscreen) container.requestFullscreen();
+            else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
             changeScreen('login-screen');
         }
 
-        // --- LOGIN VERIFICATION ---
         function handleLogin() {
-            const userField = document.getElementById('username').value.trim();
-            const passField = document.getElementById('password').value;
+            const uField = document.getElementById('username').value.trim();
+            const pField = document.getElementById('password').value;
 
-            if (allowedUsers[userField] && allowedUsers[userField].password === passField) {
-                loggedInUser = allowedUsers[userField];
-                
+            if (allowedUsers[uField] && allowedUsers[uField].password === pField) {
+                loggedInUser = allowedUsers[uField];
                 document.getElementById('current-user-img').src = loggedInUser.avatar;
-                document.getElementById('header-display-name').innerText = loggedInUser.displayName;
-
+                document.getElementById('header-display-name').innerText = loggedInUser.name;
                 changeScreen('list-screen');
                 renderChatList();
             } else {
-                alert("Invalid username or password configuration.");
+                alert("Invalid user validation profile parameters.");
             }
         }
 
         function handleLogout() {
             loggedInUser = null;
-            if (document.exitFullscreen) { document.exitFullscreen(); }
-            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
-            
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            changeScreen('splash-screen'); // Return back to the opening splash loop
+            changeScreen('splash-screen');
         }
 
         function showListScreen() {
@@ -619,63 +646,131 @@
             renderChatList();
         }
 
-        // --- APP CONTENT GENERATOR ---
         function renderChatList() {
             const listContainer = document.getElementById('chats-list');
             listContainer.innerHTML = '';
 
-            Object.values(userData).forEach(user => {
-                const lastMsg = user.messages[user.messages.length - 1];
-                const previewText = lastMsg ? lastMsg.text : "Start a conversation";
+            Object.values(activeConversations).forEach(chat => {
+                let chatTitle = chat.name;
+                let chatAvatarHTML = '';
+                
+                if (!chat.isGroup) {
+                    if (chat.id === "p2p_user1_user2") {
+                        const peer = (loggedInUser.id === "user1") ? allowedUsers["user2"] : allowedUsers["user1"];
+                        chatTitle = peer.name;
+                        chatAvatarHTML = `<div class="avatar-container"><img src="${peer.avatar}" class="avatar"><div class="status-dot"></div></div>`;
+                    } else {
+                        chatAvatarHTML = `<div class="avatar-container"><img src="${chat.avatar}" class="avatar"><div class="status-dot"></div></div>`;
+                    }
+                } else {
+                    chatAvatarHTML = `
+                        <div class="group-avatar-wrapper">
+                            <img src="${allowedUsers['user1'].avatar}" class="group-avatar-1">
+                            <img src="${allowedUsers['user2'].avatar}" class="group-avatar-2">
+                        </div>
+                    `;
+                }
 
-                const chatRow = document.createElement('div');
-                chatRow.className = 'chat-row';
-                chatRow.onclick = () => openChat(user.id);
-                chatRow.innerHTML = `
-                    <div class="avatar-container">
-                        <img src="${user.avatar}" alt="${user.name}" class="avatar">
-                        <div class="status-dot"></div>
-                    </div>
+                const lastMsg = chat.messages[chat.messages.length - 1];
+                const preview = lastMsg ? `${lastMsg.senderName}: ${lastMsg.text}` : "No messages yet";
+
+                const row = document.createElement('div');
+                row.className = 'chat-row';
+                row.onclick = () => openChatWindow(chat.id);
+                row.innerHTML = `
+                    ${chatAvatarHTML}
                     <div class="chat-info">
-                        <div class="chat-name">${user.name}</div>
-                        <div class="chat-preview">${previewText}</div>
+                        <div class="chat-name">${chatTitle}</div>
+                        <div class="chat-preview">${preview}</div>
                     </div>
                 `;
-                listContainer.appendChild(chatRow);
+                listContainer.appendChild(row);
             });
         }
 
-        function openChat(userId) {
-            currentChatUserId = userId;
-            const user = userData[userId];
+        function openChatWindow(id) {
+            activeChatId = id;
+            const chat = activeConversations[id];
+            const slot = document.getElementById('header-avatar-slot');
             
-            document.getElementById('active-avatar').src = user.avatar;
-            document.getElementById('active-name').innerText = user.name;
-            
-            renderMessages();
+            let displayTitle = chat.name;
+
+            if (chat.isGroup) {
+                document.getElementById('active-status').innerText = "Michael, Emma, John";
+                slot.innerHTML = `
+                    <div class="group-avatar-wrapper" style="width:40px; height:40px;">
+                        <img src="${allowedUsers['user1'].avatar}" class="group-avatar-1" style="width:26px; height:26px;">
+                        <img src="${allowedUsers['user2'].avatar}" class="group-avatar-2" style="width:26px; height:26px;">
+                    </div>
+                `;
+            } else {
+                document.getElementById('active-status').innerText = "Active now";
+                let targetImg = chat.avatar;
+                if (chat.id === "p2p_user1_user2") {
+                    const peer = (loggedInUser.id === "user1") ? allowedUsers["user2"] : allowedUsers["user1"];
+                    displayTitle = peer.name;
+                    targetImg = peer.avatar;
+                }
+                slot.innerHTML = `<img src="${targetImg}" class="avatar" style="width:40px; height:40px;">`;
+            }
+
+            document.getElementById('active-name').innerText = displayTitle;
+            renderMessagesStream();
             changeScreen('chat-screen');
+            
+            // Focus scrolling onto chat box window element bottom edge
+            const screenObj = document.getElementById('chat-screen');
+            screenObj.scrollTop = screenObj.scrollHeight;
         }
 
-        function renderMessages() {
+        function renderMessagesStream() {
             const stream = document.getElementById('messages-stream');
             stream.innerHTML = '';
             
-            const messages = userData[currentChatUserId].messages;
-            messages.forEach(msg => {
+            const chat = activeConversations[activeChatId];
+            
+            chat.messages.forEach(msg => {
+                const isMe = (msg.senderId === loggedInUser.id);
                 const wrapper = document.createElement('div');
-                wrapper.className = `msg-wrapper ${msg.type}`;
-                wrapper.innerHTML = `<div class="message">${msg.text}</div>`;
+                wrapper.className = `msg-wrapper ${isMe ? 'sent' : 'received'}`;
+
+                let avatarSrc = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
+                if (allowedUsers[msg.senderId]) {
+                    avatarSrc = allowedUsers[msg.senderId].avatar;
+                } else if (msg.senderId === "bot_john") {
+                    avatarSrc = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
+                }
+
+                let senderLabel = "";
+                let avatarHTML = "";
+                
+                if (!isMe) {
+                    if (chat.isGroup) {
+                        senderLabel = `<span class="sender-name-tag">${msg.senderName}</span>`;
+                    }
+                    avatarHTML = `<img src="${avatarSrc}" class="mini-msg-avatar">`;
+                }
+
+                wrapper.innerHTML = `
+                    ${senderLabel}
+                    <div class="message-row-core">
+                        ${avatarHTML}
+                        <div class="message">${msg.text}</div>
+                    </div>
+                `;
                 stream.appendChild(wrapper);
             });
 
-            stream.scrollTop = stream.scrollHeight;
+            // Adjust main window screen level viewport scroll tracking to anchor at bottom bubble
+            const screenObj = document.getElementById('chat-screen');
+            screenObj.scrollTop = screenObj.scrollHeight;
         }
 
         function toggleSendBtn() {
             const input = document.getElementById('message-input');
             const sendIcon = document.getElementById('send-icon');
             const addons = document.getElementById('input-addons');
-
+            
             if (input.value.trim() !== '') {
                 sendIcon.style.display = 'block';
                 addons.style.display = 'none';
@@ -690,31 +785,35 @@
             const text = input.value.trim();
             if (!text) return;
 
-            userData[currentChatUserId].messages.push({
-                type: 'sent',
+            const targetChatId = activeChatId;
+
+            activeConversations[targetChatId].messages.push({
+                senderId: loggedInUser.id,
+                senderName: loggedInUser.name,
                 text: text
             });
 
             input.value = '';
             toggleSendBtn();
-            renderMessages();
+            renderMessagesStream();
             saveState();
 
-            setTimeout(() => {
-                if (currentChatUserId === null) return;
-                userData[currentChatUserId].messages.push({
-                    type: 'received',
-                    text: `Echo reply to ${loggedInUser.displayName}: "${text}"`
-                });
-                renderMessages();
-                saveState();
-            }, 1000);
+            if (targetChatId === "p2p_bot_john") {
+                setTimeout(() => {
+                    if (activeChatId !== "p2p_bot_john") return;
+                    activeConversations["p2p_bot_john"].messages.push({
+                        senderId: "bot_john",
+                        senderName: "John Doe",
+                        text: `Hey ${loggedInUser.name}! I received your private message. Let's touch base inside our Web Dev Group Project chat room instead!`
+                    });
+                    renderMessagesStream();
+                    saveState();
+                }, 1200);
+            }
         }
 
         document.getElementById('message-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
+            if (e.key === 'Enter') sendMessage();
         });
     </script>
 </body>
